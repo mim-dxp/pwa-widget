@@ -1,6 +1,6 @@
 {
   "name": "Industrial Stats Widget",
-  "short_name": "IndStats",
+  "short_name": "indstatwidget",
   "version": "1.0.0",
   "description": "Widget showing industrial license and pending requests statistics",
   "start_url": "/index.html",

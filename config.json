@@ -5,10 +5,10 @@
       "id": "industrial-stats-widget",
       "name": "Industrial Stats",
       "description": "Shows industrial license and MIM EA pending requests statistics",
-      "author": "Your Organization",
+      "author": "MIM",
       "version": "1.0.0",
       "msEdgeVersion": "1.0.0",
-      "sources": ["https://your-rest-service-url.com/api"],
+      "sources": ["https://sectorial-be.senaei.app/api"],
       "icons": {
         "44": "images/icon-44.png",
         "128": "images/icon-128.png"
@@ -18,5 +18,5 @@
     }
   ],
   "capabilities": [],
-  "homepage": "https://example.com"
+  "homepage": "https://app.industry.sa"
 }

@@ -69,13 +69,18 @@
     </div>
 
     <script>
-      const API_URL = "https://your-rest-service-url.com/api";
+      const API_URL = "https://sectorial-be.senaei.app/api/v2/widgets/stats";
       const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
       // Function to fetch data from the REST API
       async function fetchStats() {
         try {
-          const response = await fetch(API_URL);
+          const response = await fetch(API_URL, {
+            headers: {
+              Authorization:
+                "Bearer 7441|CPWMVvZZa1YCe30gPHXaAYdCC0nS6iyLGEmIDzBcdb390d2e",
+            },
+          });
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
