@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Industrial Stats Widget</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 12px;
+        background-color: #f9f9f9;
+        color: #000;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .widget-container {
+        width: 100%;
+        max-width: 300px;
+      }
+      .widget-header {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #0078d4;
+      }
+      .stats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background-color: white;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .stat-label {
+        font-size: 14px;
+        color: #505050;
+      }
+      .stat-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000;
+      }
+      .last-updated {
+        font-size: 11px;
+        color: #777;
+        text-align: right;
+        margin-top: 8px;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="widget-container">
+      <div class="widget-header">Industrial Stats Monitor</div>
+      <div class="stats-container" id="statsContainer">
+        <!-- Stats will be loaded here dynamically -->
+        <div class="stat-item">
+          <span class="stat-label">Loading...</span>
+          <span class="stat-value">-</span>
+        </div>
+      </div>
+      <div class="last-updated" id="lastUpdated">Last updated: --</div>
+    </div>
+
+    <script>
+      const API_URL = "https://your-rest-service-url.com/api";
+      const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+      // Function to fetch data from the REST API
+      async function fetchStats() {
+        try {
+          const response = await fetch(API_URL);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          updateWidgetUI(data);
+        } catch (error) {
+          console.error("Error fetching stats:", error);
+          displayError();
+        }
+      }
+
+      // Function to update the widget UI with the fetched data
+      function updateWidgetUI(data) {
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = ""; // Clear existing content
+
+        // Add each stat item to the container
+        data.forEach((stat) => {
+          const statItem = document.createElement("div");
+          statItem.className = "stat-item";
+
+          const statLabel = document.createElement("span");
+          statLabel.className = "stat-label";
+          statLabel.textContent = stat.label;
+
+          const statValue = document.createElement("span");
+          statValue.className = "stat-value";
+          statValue.textContent = stat.value;
+
+          statItem.appendChild(statLabel);
+          statItem.appendChild(statValue);
+          statsContainer.appendChild(statItem);
+        });
+
+        // Update the last updated timestamp
+        const now = new Date();
+        document.getElementById(
+          "lastUpdated"
+        ).textContent = `Last updated: ${now.toLocaleTimeString()}`;
+      }
+
+      // Function to display error in the widget
+      function displayError() {
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = `
+        <div class="stat-item" style="color: #d83b01;">
+          <span class="stat-label">Error loading data</span>
+          <span class="stat-value">!</span>
+        </div>
+      `;
+      }
+
+      // Initial data load
+      fetchStats();
+
+      // Set up interval to refresh data
+      setInterval(fetchStats, UPDATE_INTERVAL);
+
+      // Listen for widget visibility changes to optimize performance
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          // Widget is visible, refresh data
+          fetchStats();
+        }
+      });
+    </script>
+  </body>
+</html>

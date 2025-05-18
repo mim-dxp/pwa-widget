@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Industrial Stats Widget</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0078d4" />
+    <meta
+      name="description"
+      content="Widget showing industrial license and pending requests statistics"
+    />
+    <link rel="icon" type="image/png" sizes="44x44" href="images/icon-44.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="128x128"
+      href="images/icon-128.png"
+    />
+    <link rel="apple-touch-icon" href="images/icon-128.png" />
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f9f9f9;
+        color: #000;
+        display: flex;
+        justify-content: center;
+      }
+      .widget-container {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        background-color: white;
+      }
+      .widget-header {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #0078d4;
+      }
+      .instructions {
+        margin-top: 40px;
+        max-width: 500px;
+        line-height: 1.5;
+      }
+      .instructions h2 {
+        color: #0078d4;
+      }
+      .instructions ol {
+        padding-left: 20px;
+      }
+      .instructions li {
+        margin-bottom: 10px;
+      }
+      .stats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background-color: #f5f5f5;
+        border-radius: 6px;
+      }
+      .stat-label {
+        font-size: 14px;
+        color: #505050;
+      }
+      .stat-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000;
+      }
+      .last-updated {
+        font-size: 11px;
+        color: #777;
+        text-align: right;
+        margin-top: 10px;
+        font-style: italic;
+      }
+      .install-button {
+        background-color: #0078d4;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        display: none;
+      }
+      .install-button:hover {
+        background-color: #0069be;
+      }
+      @media (display-mode: standalone) {
+        .instructions {
+          display: none;
+        }
+        body {
+          padding: 0;
+        }
+        .widget-container {
+          box-shadow: none;
+          max-width: none;
+          width: 100%;
+          height: 100vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="widget-container">
+        <div class="widget-header">Industrial Stats Monitor</div>
+        <div class="stats-container" id="statsContainer">
+          <!-- Stats will be loaded here dynamically -->
+          <div class="stat-item">
+            <span class="stat-label">Loading...</span>
+            <span class="stat-value">-</span>
+          </div>
+        </div>
+        <div class="last-updated" id="lastUpdated">Last updated: --</div>
+        <button id="installButton" class="install-button">
+          Install Widget
+        </button>
+      </div>
+
+      <div class="instructions">
+        <h2>Industrial Stats Widget - Installation Instructions</h2>
+        <p>
+          This simple widget displays your industrial license statistics and
+          updates every 5 minutes.
+        </p>
+
+        <h3>To install as a Windows widget:</h3>
+        <ol>
+          <li>Click the install button above (or use the browser menu)</li>
+          <li>After installation, you can pin the app to your Start menu</li>
+          <li>
+            Once installed, this widget can appear in your Windows Widget panel
+          </li>
+        </ol>
+
+        <p>
+          <strong>Note:</strong> This widget requires Microsoft Edge or Google
+          Chrome on Windows 11.
+        </p>
+      </div>
+    </main>
+
+    <script>
+      const API_URL = "https://your-rest-service-url.com/api";
+      const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+      let deferredPrompt;
+
+      // Register service worker for PWA functionality
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("service-worker.js")
+            .then(function (registration) {
+              console.log("ServiceWorker registration successful");
+            })
+            .catch(function (err) {
+              console.log("ServiceWorker registration failed: ", err);
+            });
+        });
+      }
+
+      // Handle install prompt
+      window.addEventListener("beforeinstallprompt", (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        // Update UI to notify the user they can add to home screen
+        const installButton = document.getElementById("installButton");
+        installButton.style.display = "block";
+
+        installButton.addEventListener("click", async () => {
+          // Show the install prompt
+          deferredPrompt.prompt();
+          // Wait for the user to respond to the prompt
+          const { outcome } = await deferredPrompt.userChoice;
+          // We no longer need the prompt
+          deferredPrompt = null;
+          // Hide the install button
+          installButton.style.display = "none";
+        });
+      });
+
+      // Function to fetch data from the REST API
+      async function fetchStats() {
+        try {
+          // For testing purposes, use mock data if API is not available
+          const mockData = [
+            { label: "Total Industrial License", value: "842" },
+            { label: "Pending Requests in MIM EA", value: "1234" },
+            { label: "Pending Tickets", value: "456" },
+          ];
+
+          try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            updateWidgetUI(data);
+          } catch (error) {
+            console.warn("Using mock data due to API error:", error);
+            updateWidgetUI(mockData);
+          }
+        } catch (error) {
+          console.error("Error handling stats:", error);
+          displayError();
+        }
+      }
+
+      // Function to update the widget UI with the fetched data
+      function updateWidgetUI(data) {
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = ""; // Clear existing content
+
+        // Add each stat item to the container
+        data.forEach((stat) => {
+          const statItem = document.createElement("div");
+          statItem.className = "stat-item";
+
+          const statLabel = document.createElement("span");
+          statLabel.className = "stat-label";
+          statLabel.textContent = stat.label;
+
+          const statValue = document.createElement("span");
+          statValue.className = "stat-value";
+          statValue.textContent = stat.value;
+
+          statItem.appendChild(statLabel);
+          statItem.appendChild(statValue);
+          statsContainer.appendChild(statItem);
+        });
+
+        // Update the last updated timestamp
+        const now = new Date();
+        document.getElementById(
+          "lastUpdated"
+        ).textContent = `Last updated: ${now.toLocaleTimeString()}`;
+      }
+
+      // Function to display error in the widget
+      function displayError() {
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = `
+        <div class="stat-item" style="color: #d83b01;">
+          <span class="stat-label">Error loading data</span>
+          <span class="stat-value">!</span>
+        </div>
+      `;
+      }
+
+      // Initial data load
+      fetchStats();
+
+      // Set up interval to refresh data
+      setInterval(fetchStats, UPDATE_INTERVAL);
+
+      // Listen for visibility changes to optimize performance
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          // Widget is visible, refresh data
+          fetchStats();
+        }
+      });
+    </script>
+  </body>
+</html>

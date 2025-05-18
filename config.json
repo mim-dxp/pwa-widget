@@ -1,0 +1,22 @@
+{
+  "schema": "1.0",
+  "widgets": [
+    {
+      "id": "industrial-stats-widget",
+      "name": "Industrial Stats",
+      "description": "Shows industrial license and MIM EA pending requests statistics",
+      "author": "Your Organization",
+      "version": "1.0.0",
+      "msEdgeVersion": "1.0.0",
+      "sources": ["https://your-rest-service-url.com/api"],
+      "icons": {
+        "44": "images/icon-44.png",
+        "128": "images/icon-128.png"
+      },
+      "screenshots": [],
+      "permissions": ["geolocation"]
+    }
+  ],
+  "capabilities": [],
+  "homepage": "https://example.com"
+}
