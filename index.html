@@ -94,7 +94,7 @@
         font-weight: 600;
         cursor: pointer;
         margin-top: 20px;
-        /* display: none; */
+        display: none;
       }
       .install-button:hover {
         background-color: #0069be;
@@ -155,9 +155,10 @@
       </div>
     </main>
 
-    <script>
-      const API_URL = "https://sectorial-be.senaei.app/api/v2/widgets/stats";
-      const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+    <script type="module">
+      // Import environment variables
+      import ENV from "./env.js";
+
       let deferredPrompt;
 
       // Register service worker for PWA functionality
@@ -207,12 +208,13 @@
           ];
 
           try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(ENV.API_URL, {
               headers: {
-                Authorization:
-                  "Bearer 7441|CPWMVvZZa1YCe30gPHXaAYdCC0nS6iyLGEmIDzBcdb390d2e",
+                Authorization: `Bearer ${ENV.API_KEY}`,
+                "Content-Type": "application/json",
               },
             });
+
             if (!response.ok) {
               throw new Error("Network response was not ok");
             }
@@ -273,7 +275,7 @@
       fetchStats();
 
       // Set up interval to refresh data
-      setInterval(fetchStats, UPDATE_INTERVAL);
+      setInterval(fetchStats, ENV.UPDATE_INTERVAL);
 
       // Listen for visibility changes to optimize performance
       document.addEventListener("visibilitychange", function () {
