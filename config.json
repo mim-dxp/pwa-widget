@@ -3,7 +3,7 @@
   "widgets": [
     {
       "id": "industrial-stats-widget",
-      "name": "Industrial Stats",
+      "name": "إحصاءات الخدمات",
       "description": "Shows industrial license and MIM EA pending requests statistics",
       "author": "MIM",
       "version": "1.0.0",
@@ -18,5 +18,5 @@
     }
   ],
   "capabilities": [],
-  "homepage": "https://app.industry.sa"
+  "homepage": "https://sectorial-be.senaei.app/pwa-widget"
 }
